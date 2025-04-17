@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
@@ -28,13 +27,30 @@ const FAQItem = ({ question, answer }: FAQItemProps) => {
 
 const FAQ = () => {
   return (
-    <section className="w-full py-16">
+    <section className="w-full py-16 relative">
       <div className="container px-4 md:px-6 mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
           Frequent Asked Questions
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="absolute left-0 right-0 h-[2px] overflow-hidden">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 1440 20" 
+            preserveAspectRatio="none" 
+            className="w-full absolute"
+          >
+            <path 
+              d="M0 10 L200 5 L1240 15 L1440 10" 
+              fill="none" 
+              stroke="#0030BC" 
+              strokeWidth="2"
+              className="stroke-primary"
+            />
+          </svg>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
           <div className="space-y-4">
             <FAQItem 
               question="What is Posinnove?" 
