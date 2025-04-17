@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
@@ -41,11 +42,11 @@ const FAQ = () => {
             className="w-full absolute"
           >
             <path 
-              d="M0 10 L200 5 L1240 15 L1440 10" 
+              d="M0 10 Q720 5, 1440 10" 
               fill="none" 
-              stroke="#0030BC" 
-              strokeWidth="2"
-              className="stroke-primary"
+              stroke="#9b87f5" 
+              strokeWidth="3"
+              className="stroke-[#9b87f5]"
             />
           </svg>
         </div>
@@ -92,3 +93,4 @@ const FAQ = () => {
 };
 
 export default FAQ;
+
