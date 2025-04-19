@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils";
 import { Loader2, FileCheck, BookOpen, BookmarkCheck, PenSquare } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Link } from "react-router-dom";
+import CourseManagementCard from "@/components/instructor/CourseManagementCard";
 
 export default function InstructorDashboard() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -21,52 +22,52 @@ export default function InstructorDashboard() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchInstructorData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch courses
-        const coursesResponse = await courseAPI.getInstructorCourses();
-        console.log("Instructor courses response:", coursesResponse);
-        const coursesData = coursesResponse.data?.data?.courses || [];
-        setCourses(coursesData);
-        
-        // Calculate stats
-        const publishedCourses = coursesData.filter((course: any) => course.status === 2).length;
-        const totalStudents = coursesData.reduce((acc: number, course: any) => 
-          acc + (course.enrollments?.length || 0), 0
-        );
-        const totalLectures = coursesData.reduce((acc: number, course: any) => 
-          acc + (course.lectures?.length || 0), 0
-        );
-        
-        setStats({
-          totalCourses: coursesData.length,
-          publishedCourses: publishedCourses,
-          totalStudents: totalStudents,
-          totalLectures: totalLectures
-        });
-      } catch (error: any) {
-        console.error("Error fetching instructor data:", error);
-        toast({
-          title: "Error",
-          description: error.response?.data?.message || "Failed to load dashboard data",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchInstructorData();
-  }, [toast]);
+  }, []);
+
+  const fetchInstructorData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch courses
+      const coursesResponse = await courseAPI.getInstructorCourses();
+      console.log("Instructor courses response:", coursesResponse);
+      const coursesData = coursesResponse.data?.data?.courses || [];
+      setCourses(coursesData);
+      
+      // Calculate stats
+      const publishedCourses = coursesData.filter((course: any) => course.status === 2 || course.status === 3).length;
+      const totalStudents = coursesData.reduce((acc: number, course: any) => 
+        acc + (course.enrollments?.length || 0), 0
+      );
+      const totalLectures = coursesData.reduce((acc: number, course: any) => 
+        acc + (course.lectures?.length || 0), 0
+      );
+      
+      setStats({
+        totalCourses: coursesData.length,
+        publishedCourses: publishedCourses,
+        totalStudents: totalStudents,
+        totalLectures: totalLectures
+      });
+    } catch (error: any) {
+      console.error("Error fetching instructor data:", error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const publishCourse = async (courseId: string) => {
     try {
       const response = await courseAPI.publishCourse(courseId);
       console.log("Publish course response:", response);
       
-      // Update local state to reflect the change
+      // Update the course status in the local state to reflect the change
       setCourses(
         courses.map(course => 
           course._id === courseId ? { ...course, status: 2 } : course
@@ -77,6 +78,9 @@ export default function InstructorDashboard() {
         title: "Success",
         description: "Course published successfully",
       });
+
+      // Refresh the courses list to ensure we have the latest data
+      fetchInstructorData();
     } catch (error: any) {
       console.error("Error publishing course:", error);
       toast({
@@ -89,7 +93,7 @@ export default function InstructorDashboard() {
 
   // Helper function to determine if a course is published
   const isPublished = (course: any) => {
-    return course.status === 2;
+    return course.status === 2 || course.status === 3;
   };
 
   return (
@@ -191,68 +195,14 @@ export default function InstructorDashboard() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-3 px-4">Title</th>
-                          <th className="text-left py-3 px-4">Status</th>
-                          <th className="text-left py-3 px-4">Students</th>
-                          <th className="text-left py-3 px-4">Created</th>
-                          <th className="text-center py-3 px-4">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {courses.map((course) => (
-                          <tr key={course._id} className="border-b hover:bg-gray-50">
-                            <td className="py-3 px-4 font-medium">{course.title}</td>
-                            <td className="py-3 px-4">
-                              {isPublished(course) ? (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                  Published
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                  Draft
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 px-4">{course.enrollments?.length || 0}</td>
-                            <td className="py-3 px-4">{formatDate(course.createdAt)}</td>
-                            <td className="py-3 px-4 text-center">
-                              <div className="flex gap-2 justify-center">
-                                {!isPublished(course) && (
-                                  <Button 
-                                    size="sm" 
-                                    onClick={() => publishCourse(course._id)}
-                                  >
-                                    Publish
-                                  </Button>
-                                )}
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  asChild
-                                >
-                                  <Link to={`/instructor/courses/${course._id}/edit`}>
-                                    Edit
-                                  </Link>
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  asChild
-                                >
-                                  <Link to={`/instructor/courses/${course._id}/content`}>
-                                    Content
-                                  </Link>
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {courses.map((course) => (
+                      <CourseManagementCard 
+                        key={course._id} 
+                        course={course} 
+                        onPublish={publishCourse} 
+                      />
+                    ))}
                   </div>
                 )}
               </CardContent>

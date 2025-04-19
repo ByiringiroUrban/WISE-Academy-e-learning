@@ -53,56 +53,55 @@ export default function CourseStudentsList({ courseId }: CourseStudentsListProps
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-medium flex items-center">
           <Users className="h-5 w-5 mr-2" />
           Enrolled Students {enrollments.length > 0 && `(${enrollments.length})`}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {enrollments.length === 0 ? (
-          <div className="text-center py-4">
-            <p className="text-gray-500">No students enrolled in this course yet.</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {enrollments.map((enrollment) => (
-              <div 
-                key={enrollment._id} 
-                className="flex items-start gap-3 p-3 border rounded-md hover:bg-gray-50"
-              >
-                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                  {enrollment.updatedBy?.name?.charAt(0) || "S"}
-                </div>
-                
-                <div className="min-w-0 flex-1">
-                  <h4 className="font-medium truncate">{enrollment.updatedBy?.name || "Student"}</h4>
-                  
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
-                    <span className="truncate">{enrollment.updatedBy?.email || "No email"}</span>
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
-                    <span>Enrolled: {formatDate(enrollment.createdAt)}</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-shrink-0"
-                  onClick={() => window.location.href = `mailto:${enrollment.updatedBy?.email}`}
-                >
-                  Contact
-                </Button>
+        </h3>
+      </div>
+
+      {enrollments.length === 0 ? (
+        <div className="text-center py-6 bg-gray-50 rounded-md">
+          <p className="text-gray-500">No students enrolled in this course yet.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {enrollments.map((enrollment) => (
+            <div 
+              key={enrollment._id} 
+              className="flex items-start gap-3 p-4 border rounded-md hover:bg-gray-50"
+            >
+              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                {enrollment.updatedBy?.name?.charAt(0) || "S"}
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              
+              <div className="min-w-0 flex-1">
+                <h4 className="font-medium truncate">{enrollment.updatedBy?.name || "Student"}</h4>
+                
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{enrollment.updatedBy?.email || "No email"}</span>
+                </div>
+                
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                  <span>Enrolled: {formatDate(enrollment.createdAt)}</span>
+                </div>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-shrink-0"
+                onClick={() => window.location.href = `mailto:${enrollment.updatedBy?.email}`}
+              >
+                Contact
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

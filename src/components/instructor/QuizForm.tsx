@@ -259,6 +259,8 @@ export default function QuizForm({
   const onSubmit: SubmitHandler<FormSchemaType> = async (values) => {
     try {
       setIsSubmitting(true);
+      console.log("Submitting quiz with values:", values);
+      console.log("Questions:", questions);
 
       // Validate questions and options
       const validQuestions = questions.filter(q => q.title.trim());
@@ -315,16 +317,20 @@ export default function QuizForm({
         questions: formattedQuestions
       };
 
+      console.log("Formatted quiz data:", quizData);
+
       if (initialData?._id) {
         // Update existing quiz
-        await quizAPI.updateQuiz(initialData._id, quizData);
+        const response = await quizAPI.updateQuiz(initialData._id, quizData);
+        console.log("Update quiz response:", response);
         toast({
           title: "Success",
           description: "Quiz updated successfully",
         });
       } else {
         // Create new quiz
-        await quizAPI.createQuiz(quizData);
+        const response = await quizAPI.createQuiz(quizData);
+        console.log("Create quiz response:", response);
         toast({
           title: "Success",
           description: "Quiz created successfully",
