@@ -29,12 +29,14 @@ import {
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import QuizForm from "@/components/instructor/QuizForm";
 import { formatDate } from "@/lib/utils";
-import { Plus, FileQuestion, Book } from "lucide-react";
+import { Plus, FileQuestion, Book, Pencil, Trash2 } from "lucide-react";
 
 export default function QuizManagement() {
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentQuiz, setCurrentQuiz] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   
   const fetchQuizzes = async () => {
@@ -58,9 +60,31 @@ export default function QuizManagement() {
     fetchQuizzes();
   }, [toast]);
 
-  const handleQuizCreated = () => {
+  const handleQuizSubmitSuccess = () => {
     setDialogOpen(false);
+    setCurrentQuiz(null);
     fetchQuizzes();
+  };
+  
+  const handleDeleteQuiz = async () => {
+    if (!currentQuiz) return;
+    
+    try {
+      await quizAPI.deleteQuiz(currentQuiz._id);
+      toast({
+        title: "Success",
+        description: "Quiz deleted successfully",
+      });
+      setIsDeleteDialogOpen(false);
+      fetchQuizzes();
+    } catch (error: any) {
+      console.error("Error deleting quiz:", error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to delete quiz",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -81,9 +105,15 @@ export default function QuizManagement() {
                 Create and manage course quizzes
               </CardDescription>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen && !currentQuiz} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) setCurrentQuiz(null);
+            }}>
               <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
+                <Button className="flex items-center gap-2" onClick={() => {
+                  setCurrentQuiz(null);
+                  setDialogOpen(true);
+                }}>
                   <Plus className="h-4 w-4" />
                   Create Quiz
                 </Button>
@@ -96,7 +126,7 @@ export default function QuizManagement() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
-                  <QuizForm onSubmitSuccess={handleQuizCreated} />
+                  <QuizForm onSubmitSuccess={handleQuizSubmitSuccess} />
                 </div>
               </DialogContent>
             </Dialog>
@@ -146,14 +176,48 @@ export default function QuizManagement() {
                       <TableCell>{formatDate(quiz.createdAt)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
+                          <Dialog open={dialogOpen && currentQuiz?._id === quiz._id} onOpenChange={(open) => {
+                            setDialogOpen(open);
+                            if (!open) setCurrentQuiz(null);
+                          }}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setCurrentQuiz(quiz);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[700px]">
+                              <DialogHeader>
+                                <DialogTitle>Edit Quiz</DialogTitle>
+                                <DialogDescription>
+                                  Update the quiz details and questions
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="py-4">
+                                <QuizForm 
+                                  initialData={currentQuiz}
+                                  onSubmitSuccess={handleQuizSubmitSuccess} 
+                                />
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          
                           <Button
                             variant="outline"
                             size="sm"
+                            className="text-red-500 hover:text-red-700"
                             onClick={() => {
-                              // This will be implemented later for editing quizzes
+                              setCurrentQuiz(quiz);
+                              setIsDeleteDialogOpen(true);
                             }}
                           >
-                            Edit
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -165,6 +229,26 @@ export default function QuizManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Quiz</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this quiz? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteQuiz}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

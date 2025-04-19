@@ -15,7 +15,7 @@ interface CourseCardProps {
     sections?: { title: string; items: any[] }[];
     thumbnailId?: string;
   };
-  onPublish?: (courseId: string) => void;
+  onPublish?: (courseId: string) => Promise<void>;
 }
 
 export default function CourseManagementCard({ course, onPublish }: CourseCardProps) {
