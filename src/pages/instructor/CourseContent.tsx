@@ -1,17 +1,15 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { courseAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Loader2, ArrowLeft, Users } from "lucide-react";
+import { Loader2, ArrowLeft, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import CourseStudentsList from "@/components/instructor/CourseStudentsList";
 import { formatDate } from "@/lib/utils";
 
-export default function CourseStudents() {
+export default function CourseContent() {
   const { courseId } = useParams<{ courseId: string }>();
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,9 +67,6 @@ export default function CourseStudents() {
     );
   }
 
-  // Use non-null assertion since we've already checked if courseId exists
-  const courseIdString = courseId || "";
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -90,8 +85,8 @@ export default function CourseStudents() {
           </div>
           <div className="flex gap-2">
             <Button asChild>
-              <Link to={`/instructor/courses/${courseIdString}/content`}>
-                Manage Content
+              <Link to={`/instructor/courses/${courseId}/students`}>
+                View Students
               </Link>
             </Button>
           </div>
@@ -100,12 +95,13 @@ export default function CourseStudents() {
         <Card>
           <CardHeader className="flex flex-row items-center border-b">
             <CardTitle className="flex items-center">
-              <Users className="h-5 w-5 mr-2" />
-              Students Enrolled
+              <BookOpen className="h-5 w-5 mr-2" />
+              Course Content
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <CourseStudentsList courseId={courseIdString} />
+            {/* Course content management interface will go here */}
+            <p>Course content management coming soon.</p>
           </CardContent>
         </Card>
       </div>

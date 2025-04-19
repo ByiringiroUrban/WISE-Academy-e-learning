@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { courseAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { formatDate } from "@/lib/utils";
 import { Loader2, FileCheck, BookOpen, BookmarkCheck, PenSquare } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Link } from "react-router-dom";
@@ -89,11 +88,6 @@ export default function InstructorDashboard() {
         variant: "destructive",
       });
     }
-  };
-
-  // Helper function to determine if a course is published
-  const isPublished = (course: any) => {
-    return course.status === 2 || course.status === 3;
   };
 
   return (

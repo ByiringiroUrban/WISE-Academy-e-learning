@@ -4,7 +4,7 @@ import { enrollmentAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Calendar, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface CourseStudentsListProps {
