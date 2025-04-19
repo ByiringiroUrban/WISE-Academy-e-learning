@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { enrollmentAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, Calendar, Users } from "lucide-react";
+import { Loader2, Users, Mail, Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface CourseStudentsListProps {
@@ -68,37 +67,38 @@ export default function CourseStudentsList({ courseId }: CourseStudentsListProps
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {enrollments.map((enrollment) => (
-            <div 
-              key={enrollment._id} 
-              className="flex items-start gap-3 p-4 border rounded-md hover:bg-gray-50"
-            >
-              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                {enrollment.updatedBy?.name?.charAt(0) || "S"}
-              </div>
-              
-              <div className="min-w-0 flex-1">
-                <h4 className="font-medium truncate">{enrollment.updatedBy?.name || "Student"}</h4>
-                
-                <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{enrollment.updatedBy?.email || "No email"}</span>
+            <Card key={enrollment._id} className="overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    {enrollment.updatedBy?.name?.charAt(0) || "S"}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h4 className="font-medium">{enrollment.updatedBy?.name || "Student"}</h4>
+                    
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <Mail className="h-4 w-4 mr-1" />
+                      {enrollment.updatedBy?.email || "No email provided"}
+                    </div>
+                    
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Enrolled: {formatDate(enrollment.createdAt)}
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-shrink-0"
+                    onClick={() => window.location.href = `mailto:${enrollment.updatedBy?.email}`}
+                  >
+                    Contact
+                  </Button>
                 </div>
-                
-                <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span>Enrolled: {formatDate(enrollment.createdAt)}</span>
-                </div>
-              </div>
-              
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="flex-shrink-0"
-                onClick={() => window.location.href = `mailto:${enrollment.updatedBy?.email}`}
-              >
-                Contact
-              </Button>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
