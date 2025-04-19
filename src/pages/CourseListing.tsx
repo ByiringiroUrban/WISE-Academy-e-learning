@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { courseAPI, categoryAPI, subcategoryAPI } from "@/lib/api";
@@ -53,7 +54,7 @@ export default function CourseListing() {
           page: currentPage,
           size: 9,
           q: searchQuery,
-          status: 3,
+          status: 3, // Only fetch published courses
         };
 
         if (selectedCategory) {
@@ -171,7 +172,15 @@ export default function CourseListing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {courses.map((course: any) => (
               <div key={course._id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                <div className="h-48 bg-gray-200"></div>
+                <div className="h-48 bg-gray-200">
+                  {course.thumbnailId && course.thumbnailId.path && (
+                    <img 
+                      src={course.thumbnailId.path} 
+                      alt={course.title} 
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
                   <p className="text-gray-600 mb-4 flex-1">{course.subTitle || "No description available"}</p>

@@ -1,3 +1,4 @@
+
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,10 @@ export function CourseCarousel({ courses }: CourseCarouselProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const totalSlides = Math.max(0, courses.length - cardsToShow + 1);
+  // Ensure we're filtering courses with status 2 or 3 (published)
+  const publishedCourses = courses.filter(course => course.status === 2 || course.status === 3);
+  
+  const totalSlides = Math.max(0, publishedCourses.length - cardsToShow + 1);
 
   const nextSlide = () => {
     setCurrentIndex(prevIndex => 
@@ -43,8 +47,6 @@ export function CourseCarousel({ courses }: CourseCarouselProps) {
       prevIndex > 0 ? prevIndex - 1 : prevIndex
     );
   };
-
-  const publishedCourses = courses.filter(course => course.status === 2 || course.status === 3);
 
   // If no published courses, return empty placeholder
   if (publishedCourses.length === 0) {
