@@ -53,6 +53,7 @@ export default function CourseListing() {
           page: currentPage,
           size: 9,
           q: searchQuery,
+          status: 3,
         };
 
         if (selectedCategory) {
@@ -78,24 +79,23 @@ export default function CourseListing() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCategory(e.target.value);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   };
 
   const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSubcategory(e.target.value);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Browse Courses</h1>
 
-      {/* Search and Filters */}
       <div className="bg-white border rounded-lg  p-6 mb-8">
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
@@ -156,44 +156,44 @@ export default function CourseListing() {
           </div>
         </form>
       </div>
-<div className="border p-5 rounded-lg">
-      {/* Course Listing */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <p>Loading courses...</p>
-        </div>
-      ) : courses.length === 0 ? (
-        <div className="text-center py-10">
-          <h3 className="text-xl font-medium">No courses found</h3>
-          <p className="text-gray-600 mt-2">Try changing your search or filter criteria</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course: any) => (
-            <div key={course._id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-              <div className="h-48 bg-gray-200"></div>
-              <div className="p-6 flex-1 flex flex-col">
-                <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
-                <p className="text-gray-600 mb-4 flex-1">{course.subTitle || "No description available"}</p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    {course.paid ? (
-                      <span className="text-primary font-semibold">${course.price?.amount || 0}</span>
-                    ) : (
-                      <span className="text-green-600 font-semibold">Free</span>
-                    )}
+
+      <div className="border p-5 rounded-lg">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <p>Loading courses...</p>
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="text-center py-10">
+            <h3 className="text-xl font-medium">No courses found</h3>
+            <p className="text-gray-600 mt-2">Try changing your search or filter criteria</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {courses.map((course: any) => (
+              <div key={course._id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+                <div className="h-48 bg-gray-200"></div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
+                  <p className="text-gray-600 mb-4 flex-1">{course.subTitle || "No description available"}</p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div>
+                      {course.paid ? (
+                        <span className="text-primary font-semibold">${course.price?.amount || 0}</span>
+                      ) : (
+                        <span className="text-green-600 font-semibold">Free</span>
+                      )}
+                    </div>
+                    <Link to={`/courses/${course.slug}`}>
+                      <Button>View Details</Button>
+                    </Link>
                   </div>
-                  <Link to={`/courses/${course.slug}`}>
-                    <Button>View Details</Button>
-                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-</div>
-      {/* Pagination */}
+            ))}
+          </div>
+        )}
+      </div>
+
       {totalPages > 1 && (
         <div className="flex justify-center items-center space-x-2 mt-8">
           <Button

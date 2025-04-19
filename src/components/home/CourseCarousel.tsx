@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -45,11 +44,13 @@ export function CourseCarousel({ courses }: CourseCarouselProps) {
     );
   };
 
-  // If no courses, return empty placeholder
-  if (courses.length === 0) {
+  const publishedCourses = courses.filter(course => course.status === 2 || course.status === 3);
+
+  // If no published courses, return empty placeholder
+  if (publishedCourses.length === 0) {
     return (
       <div className="text-center p-12 bg-white rounded-lg shadow-sm max-w-xl mx-auto tech-card">
-        <p className="text-gray-200 mb-4">No courses available yet.</p>
+        <p className="text-gray-200 mb-4">No published courses available yet.</p>
         <Link to="/courses">
           <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
             Browse All
@@ -101,7 +102,7 @@ export function CourseCarousel({ courses }: CourseCarouselProps) {
             damping: 30 
           }}
         >
-          {courses.map((course: any) => (
+          {publishedCourses.map((course: any) => (
             <div 
               key={course._id} 
               className={`px-2 min-w-[calc(100%/${cardsToShow})]`}
