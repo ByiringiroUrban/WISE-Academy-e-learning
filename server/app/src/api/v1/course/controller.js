@@ -14,6 +14,7 @@ const {
 const { findOneCategoryService } = require("../category/service");
 const { findOneSubCategoryService } = require("../subCategory/service");
 const { findOneFileService } = require("../file/service");
+const { sendEmailService } = require("../services");
 
 // add course
 exports.add = async (req, res, next) => {
@@ -266,6 +267,7 @@ exports.publicCourses = async (req, res, next) => {
     subtitle,
     sort,
     type,
+    status,
   } = req.query;
   const query = { isDelete: false };
   let options = {
@@ -282,6 +284,7 @@ exports.publicCourses = async (req, res, next) => {
     subtitle,
     sort,
     type,
+    status,
   };
 
   try {
@@ -375,8 +378,8 @@ exports.publishCourse = async (req, res, next) => {
       throw new BadRequest(req.__("courseRequiredFieldsErr") || "Course must have title, category and subcategory before publishing");
     }
 
-    // Set status to published (2)
-    course.status = 2;
+    // Set status to fully published (3)
+    course.status = 3;
 
     // Save course
     await course.save();
@@ -388,6 +391,29 @@ exports.publishCourse = async (req, res, next) => {
       ip,
       user: _id,
     });
+
+    // Notify course creator via email
+    try {
+      const emailSubject = "Course Published";
+      const emailBody = `
+        <h1>Your course "${course.title}" has been published!</h1>
+        <p>Your course is now live and available for students to enroll.</p>
+        <p>Thank you for your contribution to our learning platform.</p>
+      `;
+      
+      // Send email if the instructor has an email
+      if (course.updatedBy && course.updatedBy.email) {
+        await sendEmailService({
+          body: emailBody,
+          email: course.updatedBy.email,
+          subject: emailSubject,
+          errorMsg: "Failed to send course publication email",
+        });
+      }
+    } catch (emailError) {
+      console.error("Error sending course publication email:", emailError);
+      // Don't fail the whole operation if email fails
+    }
 
     // response
     res.status(200).json({

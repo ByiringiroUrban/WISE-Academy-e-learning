@@ -198,6 +198,7 @@ exports.findPublicCoursesService = async (
     subtitle,
     sort,
     type,
+    status,
   }
 ) => {
   if (
@@ -232,6 +233,10 @@ exports.findPublicCoursesService = async (
 
   if (level) {
     query = { ...query, level };
+  }
+
+  if (status) {
+    query.status = parseInt(status);
   }
 
   const courses = await Course.find(query)
@@ -278,7 +283,6 @@ exports.findPublicCoursesService = async (
     })
     .sort({ updatedAt: -1 });
 
-  // const oneHour = 3600;
   const oneHour = 40;
 
   const updatedCourses = [];

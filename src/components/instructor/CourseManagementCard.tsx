@@ -33,7 +33,7 @@ export default function CourseManagementCard({ course, onPublish }: CourseCardPr
         return <Badge variant="outline" className="bg-yellow-100">Under Review</Badge>;
       case 2:
       case 3:
-        return <Badge variant="outline" className="bg-green-100">Published</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-700">Published</Badge>;
       default:
         return <Badge variant="outline" className="bg-gray-100">Draft</Badge>;
     }
@@ -67,15 +67,15 @@ export default function CourseManagementCard({ course, onPublish }: CourseCardPr
         await onPublish(course._id);
         toast({
           title: "Course Published",
-          description: "Your course has been successfully published",
+          description: "Your course has been successfully published and is now visible to students",
           variant: "default",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error publishing course:", error);
       toast({
         title: "Publication Failed",
-        description: "There was an error publishing your course. Please try again.",
+        description: error?.response?.data?.message || "There was an error publishing your course. Please ensure it has all required fields.",
         variant: "destructive",
       });
     } finally {
