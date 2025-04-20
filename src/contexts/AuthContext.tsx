@@ -1,13 +1,12 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { userAPI, courseAPI, quizAPI } from '../lib/api';
+import { userAPI, courseAPI, quizAPI, enrollmentAPI, reviewAPI, announcementAPI } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: any | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password?: string) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
   updateUserProfile: (userData: any) => Promise<void>;
@@ -27,7 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
 
-  // Check if user is logged in on initial load
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -52,10 +50,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password?: string) => {
     try {
       setIsLoading(true);
-      // Using mock login for now
       const mockUser = {
         _id: '123',
         name: 'Test User',
@@ -85,7 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (userData: any) => {
     try {
       setIsLoading(true);
-      // Mock registration
       const mockUser = {
         _id: '123',
         name: userData.name,
@@ -115,7 +111,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      // Mock logout
       setUser(null);
       setVerified(false);
       setIsAuthenticated(false);
@@ -141,10 +136,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       if (!user) throw new Error('Not authenticated');
       
-      // Update user profile
       await userAPI.updateUser(user._id, userData);
       
-      // Update local user state
       setUser({ ...user, ...userData });
       
       toast({
