@@ -3,9 +3,10 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock, BookmarkCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface EnrolledCoursesListProps {
   courses: any[];
@@ -37,7 +38,8 @@ export function EnrolledCoursesList({ courses, isLoading }: EnrolledCoursesListP
   if (courses.length === 0) {
     return (
       <div className="text-center py-8 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">You haven't enrolled in any courses yet.</p>
+        <BookmarkCheck className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+        <p className="text-gray-500 mb-3">You haven't enrolled in any courses yet.</p>
         <Button 
           variant="outline" 
           className="mt-2"
@@ -53,7 +55,17 @@ export function EnrolledCoursesList({ courses, isLoading }: EnrolledCoursesListP
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {displayCourses.map(({ course, enrollment }) => (
-          <Card key={enrollment._id} className="flex flex-col h-full">
+          <Card key={enrollment._id} className="flex flex-col h-full overflow-hidden transition-shadow hover:shadow-md">
+            {course.thumbnail?.path && (
+              <div className="relative h-40 bg-gray-200 overflow-hidden">
+                <img 
+                  src={course.thumbnail.path} 
+                  alt={course.title} 
+                  className="w-full h-full object-cover"
+                />
+                <Badge className="absolute top-2 right-2 bg-blue-500">{course.level || 'All Levels'}</Badge>
+              </div>
+            )}
             <CardHeader className="pb-2">
               <CardTitle className="text-lg line-clamp-2">{course.title}</CardTitle>
               <p className="text-sm text-muted-foreground line-clamp-2">
@@ -66,7 +78,7 @@ export function EnrolledCoursesList({ courses, isLoading }: EnrolledCoursesListP
                   <span>Progress</span>
                   <span>{course.progress}%</span>
                 </div>
-                <Progress value={course.progress} />
+                <Progress value={course.progress} className="h-2" />
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <div className="flex items-center">
                     <BookOpen className="h-4 w-4 mr-1" />
@@ -83,7 +95,7 @@ export function EnrolledCoursesList({ courses, isLoading }: EnrolledCoursesListP
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="border-t pt-4">
               <Button 
                 className="w-full" 
                 onClick={() => navigate(`/courses/${course.key || course.slug}/learn`)}

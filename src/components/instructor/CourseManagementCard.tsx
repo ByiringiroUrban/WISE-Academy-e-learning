@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Users } from 'lucide-react';
 import { useState } from 'react';
+import { isPublishedStatus } from '@/lib/utils';
 
 interface CourseCardProps {
   course: {
@@ -84,7 +85,7 @@ export default function CourseManagementCard({ course, onPublish }: CourseCardPr
   };
 
   // Check if course is publishable (not already published)
-  const isPublishable = course.status !== 2 && course.status !== 3;
+  const isPublishable = !isPublishedStatus(course.status);
 
   return (
     <Card className="overflow-hidden">
