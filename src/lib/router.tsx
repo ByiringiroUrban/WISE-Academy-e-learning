@@ -38,10 +38,22 @@ export const router = createBrowserRouter([
     path: "/",
     element: <AuthLayout />,
     children: [
-      { index: true, element: withSuspense(Homepage) },
-      { path: "login", element: withSuspense(Login) },
-      { path: "register", element: withSuspense(Register) },
-      { path: "home", element: withSuspense(Home) },
+      { 
+        index: true, 
+        element: withSuspense(Homepage) 
+      },
+      { 
+        path: "home", 
+        element: withSuspense(Home) 
+      },
+      { 
+        path: "login", 
+        element: withSuspense(Login) 
+      },
+      { 
+        path: "register", 
+        element: withSuspense(Register) 
+      },
       {
         path: "dashboard",
         element: <RequireAuth><Suspense fallback={<Loader />}><Dashboard /></Suspense></RequireAuth>
@@ -82,11 +94,6 @@ export const router = createBrowserRouter([
             element: <RequireAuth requireRole={2}>{withSuspense(CourseStudents)}</RequireAuth>
           }
         ]
-      },
-      // Redirect for the instructor root path
-      {
-        path: "instructor",
-        element: <Navigate to="/instructor/dashboard" replace />
       }
     ]
   },
@@ -96,3 +103,4 @@ export const router = createBrowserRouter([
     element: <Navigate to="/" replace />
   }
 ]);
+
