@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -158,7 +159,7 @@ export default function QuizQuestionForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!validateForm() || !quizId) {
       return;
     }
     
@@ -224,6 +225,15 @@ export default function QuizQuestionForm() {
   };
   
   const handleDeleteQuestion = async (questionId: string) => {
+    if (!quizId) {
+      toast({
+        title: "Error",
+        description: "Quiz ID is missing",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (window.confirm("Are you sure you want to delete this question?")) {
       try {
         await quizAPI.deleteQuestion(quizId, questionId);
