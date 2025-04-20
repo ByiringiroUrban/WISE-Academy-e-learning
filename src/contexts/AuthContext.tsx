@@ -1,5 +1,6 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { userAPI, courseAPI, quizAPI, enrollmentAPI, reviewAPI, announcementAPI } from '../lib/api';
+import { userAPI, courseAPI, quizAPI } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
