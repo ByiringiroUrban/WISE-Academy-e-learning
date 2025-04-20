@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -177,14 +176,14 @@ export default function QuizQuestionForm() {
       
       if (editingQuestionId) {
         // Update existing question
-        await quizAPI.updateQuestion(editingQuestionId, questionData);
+        await quizAPI.updateQuestion(quizId, editingQuestionId, questionData);
         toast({
           title: "Success",
           description: "Question updated successfully",
         });
       } else {
         // Create new question
-        await quizAPI.createQuestion(questionData);
+        await quizAPI.createQuestion(quizId, questionData);
         toast({
           title: "Success",
           description: "Question added successfully",
@@ -227,7 +226,7 @@ export default function QuizQuestionForm() {
   const handleDeleteQuestion = async (questionId: string) => {
     if (window.confirm("Are you sure you want to delete this question?")) {
       try {
-        await quizAPI.deleteQuestion(questionId);
+        await quizAPI.deleteQuestion(quizId, questionId);
         toast({
           title: "Success",
           description: "Question deleted successfully",

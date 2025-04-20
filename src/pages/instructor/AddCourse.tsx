@@ -1,8 +1,11 @@
+
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { courseAPI, categoryAPI, subcategoryAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function AddCourse() {
   const { toast } = useToast();
@@ -57,7 +60,7 @@ export default function AddCourse() {
     fetchCategories();
   }, [toast]);
 
-  const fetchSubcategories = async (categoryId) => {
+  const fetchSubcategories = async (categoryId: string) => {
     try {
       const response = await subcategoryAPI.getSubcategories({ categoryId });
       setSubcategories(response.data.data.subCategories || []);

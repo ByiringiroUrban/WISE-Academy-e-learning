@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const api = axios.create({
@@ -28,7 +27,7 @@ export const courseAPI = {
   publishCourse: (courseId: string) => api.patch(`/courses/${courseId}/publish`),
   getCourseByKey: (courseKey: string) => api.get(`/courses/key/${courseKey}`),
   getInstructorCourses: () => api.get('/courses/instructor'),
-  getAllCourses: (params?: any) => api.get('/courses', { params }),
+  getAllCourses: (params?: any) => api.get('/courses/all', { params }),
 };
 
 export const userAPI = {
@@ -37,7 +36,7 @@ export const userAPI = {
   getCurrentUser: () => api.get('/users/profile'),
   updateUser: (userId: string, data: any) => api.patch(`/users/${userId}`, data),
   deleteUser: (userId: string) => api.delete(`/users/${userId}`),
-  getAllUsers: (params?: any) => api.get('/users', { params }),
+  getAllUsers: (params?: any) => api.get('/users/all', { params }),
   changeUserRole: (userId: string, roleId: number) => api.patch(`/users/${userId}/role`, { roleId }),
 };
 
@@ -136,6 +135,8 @@ export const paymentAPI = {
   confirmPayment: (data: any) => api.post('/payments/confirm', data),
   getPaymentHistory: () => api.get('/payments/history'),
   getPaymentDetails: (paymentId: string) => api.get(`/payments/${paymentId}`),
+  createOrder: (data: any) => api.post('/payments/create-order', data),
+  capturePayment: (orderId: string, data: any) => api.post(`/payments/${orderId}/capture`, data),
 };
 
 export const lectureAPI = {
