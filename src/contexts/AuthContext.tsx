@@ -59,6 +59,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         role: 3, // Student role
       };
+      
+      if (password) {
+        console.log('Password provided for login');
+      }
+
       setUser(mockUser);
       setVerified(true);
       setIsAuthenticated(true);
