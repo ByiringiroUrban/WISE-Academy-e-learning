@@ -1,214 +1,268 @@
-
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { userAPI, courseAPI, quizAPI } from '../lib/api';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI, courseAPI, quizAPI, chatAPI } from '../lib/api'; // Ensure you import the APIs here
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: number; // 1: admin, 2: instructor, 3: student
+}
+
 interface AuthContextType {
-  user: any | null;
-  isLoading: boolean;
+  user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password?: string) => Promise<void>;
-  register: (userData: any) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: number) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserProfile: (userData: any) => Promise<void>;
-  verified: boolean;
+  redirectBasedOnRole: (userToRedirect?: User | null) => void;
+  createCourse: (courseData: any) => Promise<void>;
   checkAuthStatus: () => Promise<boolean>;
-  getAllCourses: () => Promise<any[]>;
-  getCourseByKey: (courseKey: string) => Promise<any>;
-  getQuizzes: () => Promise<any[]>;
+  getAllCourses: (params: any) => Promise<any>;
+  getCourseByKey: (key: string) => Promise<any>;
+  getQuizzes: () => Promise<any>;
+  createChatConversation: (data: any) => Promise<any>;
+  getConversations: () => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [verified, setVerified] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
 
   const checkAuthStatus = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const response = await userAPI.getCurrentUser();
-      const userData = response.data.data.user;
-      setUser(userData);
-      setVerified(true);
-      setIsAuthenticated(true);
-      return true;
-    } catch (error) {
-      console.error('Authentication check failed:', error);
-      setUser(null);
-      setVerified(false);
-      setIsAuthenticated(false);
+      const response = await authAPI.getCurrentUser();
+      if (response.data?.data?.user) {
+        setUser(response.data.data.user);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Auth check failed:', err);
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (email: string, password?: string) => {
-    try {
-      setIsLoading(true);
-      const mockUser = {
-        _id: '123',
-        name: 'Test User',
-        email,
-        role: 3, // Student role
-      };
-      
-      if (password) {
-        console.log('Password provided for login');
-      }
+  useEffect(() => {
+    const initialCheck = async () => {
+      await checkAuthStatus();
+    };
+    
+    initialCheck();
 
-      setUser(mockUser);
-      setVerified(true);
-      setIsAuthenticated(true);
+    const intervalId = setInterval(() => {
+      checkAuthStatus();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authAPI.login({ email, password });
+      if (response.data?.user) {
+        setUser(response.data.user);
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${response.data.user.name}!`
+        });
+        redirectBasedOnRole(response.data.user);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login failed');
       toast({
-        title: 'Success',
-        description: 'You have successfully logged in',
+        title: "Login failed",
+        description: err.response?.data?.message || 'Please check your credentials and try again.',
+        variant: "destructive"
       });
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      toast({
-        title: 'Login failed',
-        description: error.response?.data?.message || 'Invalid credentials',
-        variant: 'destructive',
-      });
-      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (userData: any) => {
+  const register = async (name: string, email: string, password: string, role: number) => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      const mockUser = {
-        _id: '123',
-        name: userData.name,
-        email: userData.email,
-        role: 3, // Student role
-      };
-      setUser(mockUser);
-      setVerified(true);
-      setIsAuthenticated(true);
+      await authAPI.register({ name, email, password, role });
       toast({
-        title: 'Success',
-        description: 'Registration successful',
+        title: "Registration successful",
+        description: "Your account has been created successfully."
       });
-    } catch (error: any) {
-      console.error('Registration failed:', error);
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registration failed');
       toast({
-        title: 'Registration failed',
-        description: error.response?.data?.message || 'Registration failed',
-        variant: 'destructive',
+        title: "Registration failed",
+        description: err.response?.data?.message || 'Please check your information and try again.',
+        variant: "destructive"
       });
-      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      await authAPI.logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out."
+      });
+    } catch (err) {
+      console.error('Logout failed:', err);
+    } finally {
       setUser(null);
-      setVerified(false);
-      setIsAuthenticated(false);
+      setIsLoading(false);
+      navigate('/');
+    }
+  };
+
+  const createCourse = async (courseData: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await courseAPI.createCourse(courseData);
+      
       toast({
-        title: 'Success',
-        description: 'You have been logged out',
+        title: "Course created",
+        description: `Course "${response.data?.data?.title || 'Untitled'}" has been created successfully.`,
       });
-    } catch (error: any) {
-      console.error('Logout failed:', error);
+      
+      return response.data?.data;
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Course creation failed');
       toast({
-        title: 'Logout failed',
-        description: error.response?.data?.message || 'Could not log out',
-        variant: 'destructive',
+        title: "Course creation failed",
+        description: err.response?.data?.message || 'Please check the course details and try again.',
+        variant: "destructive",
       });
-      throw error;
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateUserProfile = async (userData: any) => {
+  const getAllCourses = async (params: any) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      if (!user) throw new Error('Not authenticated');
-      
-      await userAPI.updateUser(user._id, userData);
-      
-      setUser({ ...user, ...userData });
-      
-      toast({
-        title: 'Success',
-        description: 'Profile updated successfully',
-      });
-    } catch (error: any) {
-      console.error('Profile update failed:', error);
-      toast({
-        title: 'Update failed',
-        description: error.response?.data?.message || 'Could not update profile',
-        variant: 'destructive',
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getAllCourses = async () => {
-    try {
-      const response = await courseAPI.getCourses();
-      return response.data.data.courses;
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-      return [];
-    }
-  };
-
-  const getCourseByKey = async (courseKey: string) => {
-    try {
-      const response = await courseAPI.getCourseDetails(courseKey);
-      return response.data.data.course;
-    } catch (error) {
-      console.error(`Error fetching course ${courseKey}:`, error);
+      const response = await courseAPI.getAllCourses(params);
+      return response.data; // or handle the data as needed
+    } catch (err: any) {
+      console.error('Failed to fetch courses:', err);
       return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getCourseByKey = async (key: string) => {
+    setIsLoading(true);
+    try {
+      const response = await courseAPI.getCourseByKey(key);
+      return response.data; // or handle the data as needed
+    } catch (err: any) {
+      console.error('Failed to fetch course by key:', err);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const getQuizzes = async () => {
+    setIsLoading(true);
     try {
-      const response = await quizAPI.getCourseQuizzes("all");
-      return response.data.data.quizzes;
-    } catch (error) {
-      console.error('Error fetching quizzes:', error);
-      return [];
+      const response = await quizAPI.getQuizzes();
+      return response.data; // or handle the data as needed
+    } catch (err: any) {
+      console.error('Failed to fetch quizzes:', err);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const value = {
-    user,
-    isLoading,
-    isAuthenticated,
-    login,
-    register,
-    logout,
-    updateUserProfile,
-    verified,
-    checkAuthStatus,
-    getAllCourses,
-    getCourseByKey,
-    getQuizzes,
+  const createChatConversation = async (data: any) => {
+    setIsLoading(true);
+    try {
+      const response = await chatAPI.createConversation(data);
+      return response.data; // or handle the data as needed
+    } catch (err: any) {
+      console.error('Failed to create chat conversation:', err);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const getConversations = async () => {
+    setIsLoading(true);
+    try {
+      const response = await chatAPI.getConversations();
+      return response.data; // or handle the data as needed
+    } catch (err: any) {
+      console.error('Failed to fetch conversations:', err);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const redirectBasedOnRole = (userToRedirect = user) => {
+    if (!userToRedirect) return;
+    switch (userToRedirect.role) {
+      case 1:
+        navigate('/admin/dashboard');
+        break;
+      case 2:
+        navigate('/instructor/dashboard');
+        break;
+      case 3:
+        navigate('/dashboard');
+        break;
+      default:
+        navigate('/');
+        break;
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        error,
+        login,
+        register,
+        logout,
+        redirectBasedOnRole,
+        createCourse,
+        checkAuthStatus,
+        getAllCourses,
+        getCourseByKey,
+        getQuizzes,
+        createChatConversation,
+        getConversations
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

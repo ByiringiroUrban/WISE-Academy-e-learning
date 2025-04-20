@@ -1,14 +1,13 @@
-
 import { useState, useEffect } from "react";
-import { categoryAPI, subcategoryAPI } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
-import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { Folder, FolderPlus, Pencil, Trash2 } from "lucide-react";
-import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { categoryAPI, subcategoryAPI } from "@/lib/api";
+import { Folder, FolderPlus, Pencil, Trash2 } from "lucide-react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 interface Category {
   _id: string;
@@ -51,6 +50,7 @@ export default function CategoryManagement() {
   }, [verified]);
 
   const fetchCategories = async () => {
+    setIsLoading(true);
     try {
       const response = await categoryAPI.getCategories();
       setCategories(response.data.data.categories || []);
@@ -68,7 +68,7 @@ export default function CategoryManagement() {
 
   const fetchSubcategories = async () => {
     try {
-      const response = await subcategoryAPI.getSubcategories();
+      const response = await subcategoryAPI.getSubcategories({});
       setSubcategories(response.data.data.subCategories || []);
     } catch (err: any) {
       toast({
@@ -257,7 +257,7 @@ export default function CategoryManagement() {
                   <Input
                     id="title"
                     value={categoryTitle}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCategoryTitle(e.target.value)}
+                    onChange={(e) => setCategoryTitle(e.target.value)}
                     placeholder="Enter category title"
                     required
                   />
@@ -269,7 +269,7 @@ export default function CategoryManagement() {
                   <Textarea
                     id="description"
                     value={categoryDesc}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCategoryDesc(e.target.value)}
+                    onChange={(e) => setCategoryDesc(e.target.value)}
                     placeholder="Enter category description"
                     rows={3}
                   />

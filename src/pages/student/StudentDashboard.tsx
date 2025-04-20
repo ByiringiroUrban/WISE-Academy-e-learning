@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { BellIcon, BookOpen, Clock, HelpCircle, FileText, CheckSquare } from "lucide-react";
+import { BellIcon, BookOpen, Clock, MessageSquare, HelpCircle } from "lucide-react";
 import { EnrolledCoursesList } from "@/components/student/EnrolledCoursesList";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import FAQAccordion from "@/components/student/FAQAccordion";
 
 export default function StudentDashboard() {
-  const { enrolledCourses, isLoading, latestAnnouncements, upcomingAssignments } = useStudentDashboard();
+  const { enrolledCourses, isLoading } = useStudentDashboard();
   const [activeTab, setActiveTab] = useState("courses");
   const navigate = useNavigate();
 
@@ -26,20 +27,16 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Alert className="border-l-4 border-blue-500">
               <BellIcon className="h-4 w-4 text-blue-500" />
-              <AlertTitle>Course Updates</AlertTitle>
+              <AlertTitle>New Course Updates</AlertTitle>
               <AlertDescription>
-                {latestAnnouncements && latestAnnouncements.length > 0 
-                  ? `You have ${latestAnnouncements.length} new announcement(s)` 
-                  : "Check your enrolled courses for new content!"}
+                Check your enrolled courses for new content!
               </AlertDescription>
             </Alert>
             <Alert className="border-l-4 border-green-500">
-              <CheckSquare className="h-4 w-4 text-green-500" />
-              <AlertTitle>Assignments</AlertTitle>
+              <MessageSquare className="h-4 w-4 text-green-500" />
+              <AlertTitle>Instructor Feedback</AlertTitle>
               <AlertDescription>
-                {upcomingAssignments && upcomingAssignments.length > 0
-                  ? `You have ${upcomingAssignments.length} pending assignment(s)` 
-                  : "You're all caught up with your assignments!"}
+                You have new messages from your instructors.
               </AlertDescription>
             </Alert>
           </div>
@@ -58,7 +55,7 @@ export default function StudentDashboard() {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="courses">My Courses</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
-              <TabsTrigger value="materials">Course Materials</TabsTrigger>
+              <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
             </TabsList>
             
             <TabsContent value="courses" className="pt-4">
@@ -85,92 +82,30 @@ export default function StudentDashboard() {
                   <CardDescription>Track your pending and completed assignments</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {upcomingAssignments && upcomingAssignments.length > 0 ? (
-                    <div className="space-y-4">
-                      {upcomingAssignments.map((assignment, index) => (
-                        <div key={index} className="flex justify-between items-center p-4 border rounded-md">
-                          <div>
-                            <h3 className="font-medium">{assignment.title}</h3>
-                            <p className="text-sm text-gray-500">Due: {assignment.dueDate}</p>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            onClick={() => navigate(`/courses/${assignment.courseSlug}/learn`)}
-                          >
-                            View
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <BookOpen className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                      <p className="text-gray-500 mb-4">View all your assignments from enrolled courses</p>
-                      <Button onClick={() => navigate('/student/assignments')}>
-                        View Assignments
-                      </Button>
-                    </div>
-                  )}
+                  <div className="text-center py-8">
+                    <BookOpen className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-gray-500 mb-4">View all your assignments from enrolled courses</p>
+                    <Button onClick={() => navigate('/student/assignments')}>
+                      View Assignments
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
             
-            <TabsContent value="materials" className="pt-4">
+            <TabsContent value="quizzes" className="pt-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Course Materials</CardTitle>
-                  <CardDescription>Access lectures, quizzes, and resources</CardDescription>
+                  <CardTitle>Course Quizzes</CardTitle>
+                  <CardDescription>Test your knowledge with quizzes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {enrolledCourses.length > 0 ? (
-                      enrolledCourses.map(({ course }) => (
-                        <div key={course?.key || course?.slug} className="border rounded-md p-4">
-                          <h3 className="font-medium mb-2">{course?.title}</h3>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center gap-2"
-                              onClick={() => navigate(`/courses/${course?.key || course?.slug}/learn`)}
-                            >
-                              <BookOpen className="h-4 w-4" /> Lectures
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center gap-2"
-                              onClick={() => navigate(`/courses/${course?.key || course?.slug}/quizzes`)}
-                            >
-                              <Clock className="h-4 w-4" /> Quizzes
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center gap-2"
-                              onClick={() => navigate(`/courses/${course?.key || course?.slug}/resources`)}
-                            >
-                              <FileText className="h-4 w-4" /> Resources
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center gap-2"
-                              onClick={() => navigate(`/courses/${course?.key || course?.slug}/announcements`)}
-                            >
-                              <BellIcon className="h-4 w-4" /> Announcements
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8">
-                        <FileText className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-gray-500 mb-4">Enroll in courses to access learning materials</p>
-                        <Button 
-                          variant="outline" 
-                          onClick={() => navigate('/courses')}
-                        >
-                          Browse Courses
-                        </Button>
-                      </div>
-                    )}
+                  <div className="text-center py-8">
+                    <Clock className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-gray-500 mb-4">Access quizzes from your enrolled courses</p>
+                    <Button variant="outline">
+                      View All Quizzes
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -194,11 +129,11 @@ export default function StudentDashboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Completed Courses</span>
-                  <span>{enrolledCourses.filter(course => course.course?.progress === 100).length}/{enrolledCourses.length}</span>
+                  <span>0/{enrolledCourses.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Assignments Due</span>
-                  <span>{upcomingAssignments?.length || 0}</span>
+                  <span>0</span>
                 </div>
               </div>
               

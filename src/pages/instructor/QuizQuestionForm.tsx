@@ -159,7 +159,7 @@ export default function QuizQuestionForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm() || !quizId) {
+    if (!validateForm()) {
       return;
     }
     
@@ -177,14 +177,14 @@ export default function QuizQuestionForm() {
       
       if (editingQuestionId) {
         // Update existing question
-        await quizAPI.updateQuestion(quizId, editingQuestionId, questionData);
+        await quizAPI.updateQuestion(editingQuestionId, questionData);
         toast({
           title: "Success",
           description: "Question updated successfully",
         });
       } else {
         // Create new question
-        await quizAPI.createQuestion(quizId, questionData);
+        await quizAPI.createQuestion(questionData);
         toast({
           title: "Success",
           description: "Question added successfully",
@@ -225,18 +225,9 @@ export default function QuizQuestionForm() {
   };
   
   const handleDeleteQuestion = async (questionId: string) => {
-    if (!quizId) {
-      toast({
-        title: "Error",
-        description: "Quiz ID is missing",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     if (window.confirm("Are you sure you want to delete this question?")) {
       try {
-        await quizAPI.deleteQuestion(quizId, questionId);
+        await quizAPI.deleteQuestion(questionId);
         toast({
           title: "Success",
           description: "Question deleted successfully",

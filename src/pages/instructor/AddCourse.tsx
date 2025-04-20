@@ -1,17 +1,18 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { courseAPI, categoryAPI, subcategoryAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
 
 export default function AddCourse() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
   
+  // Form state
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -23,15 +24,22 @@ export default function AddCourse() {
   const [level, setLevel] = useState("beginner");
   const [language, setLanguage] = useState("english");
   
+  // What will learn section
   const [learnItems, setLearnItems] = useState([""]);
+  
+  // Prerequisites section
   const [prerequisiteItems, setPrerequisiteItems] = useState([""]);
+  
+  // Who is this course for section
   const [targetAudienceItems, setTargetAudienceItems] = useState([""]);
   
+  // Data fetching states
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // Check if user is authenticated and is an instructor
   useEffect(() => {
     if (user && user.role !== 2) {
       toast({
@@ -43,6 +51,7 @@ export default function AddCourse() {
     }
   }, [user, navigate, toast]);
 
+  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -60,19 +69,7 @@ export default function AddCourse() {
     fetchCategories();
   }, [toast]);
 
-  const fetchSubcategories = async (categoryId: string) => {
-    try {
-      const response = await subcategoryAPI.getSubcategories({ categoryId });
-      setSubcategories(response.data.data.subCategories || []);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load subcategories. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
+  // Fetch subcategories when category changes
   useEffect(() => {
     if (!categoryId) {
       setSubcategories([]);
@@ -80,9 +77,23 @@ export default function AddCourse() {
       return;
     }
     
-    fetchSubcategories(categoryId);
+    const fetchSubcategories = async () => {
+      try {
+        const response = await subcategoryAPI.getSubcategories({ categoryId });
+        setSubcategories(response.data.data.subCategories || []);
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to load subcategories. Please try again.",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    fetchSubcategories();
   }, [categoryId, toast]);
 
+  // Handle array field updates
   const handleLearnItemChange = (index: number, value: string) => {
     const newItems = [...learnItems];
     newItems[index] = value;
@@ -101,10 +112,12 @@ export default function AddCourse() {
     setTargetAudienceItems(newItems);
   };
   
+  // Add new item to arrays
   const addLearnItem = () => setLearnItems([...learnItems, ""]);
   const addPrerequisiteItem = () => setPrerequisiteItems([...prerequisiteItems, ""]);
   const addTargetAudienceItem = () => setTargetAudienceItems([...targetAudienceItems, ""]);
   
+  // Remove item from arrays
   const removeLearnItem = (index: number) => {
     if (learnItems.length === 1) return;
     const newItems = learnItems.filter((_, i) => i !== index);
@@ -123,6 +136,7 @@ export default function AddCourse() {
     setTargetAudienceItems(newItems);
   };
 
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -139,10 +153,12 @@ export default function AddCourse() {
     setIsSaving(true);
     setError("");
     
+    // Filter out empty items
     const filteredLearnItems = learnItems.filter(item => item.trim() !== "");
     const filteredPrerequisiteItems = prerequisiteItems.filter(item => item.trim() !== "");
     const filteredTargetAudienceItems = targetAudienceItems.filter(item => item.trim() !== "");
     
+    // Build course data
     const courseData = {
       title,
       subTitle,
@@ -193,6 +209,7 @@ export default function AddCourse() {
         
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
           <div className="space-y-6">
+            {/* Basic Information */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
               
@@ -237,6 +254,7 @@ export default function AddCourse() {
               </div>
             </div>
             
+            {/* Categories */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Categories</h2>
               
@@ -283,6 +301,7 @@ export default function AddCourse() {
               </div>
             </div>
             
+            {/* Course Settings */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Course Settings</h2>
               
@@ -385,6 +404,7 @@ export default function AddCourse() {
               </div>
             </div>
             
+            {/* What will students learn */}
             <div>
               <h2 className="text-xl font-semibold mb-4">What will students learn?</h2>
               {learnItems.map((item, index) => (
@@ -410,6 +430,7 @@ export default function AddCourse() {
               <Button type="button" onClick={addLearnItem}>Add another learning point</Button>
             </div>
             
+            {/* Prerequisites */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Prerequisites</h2>
               {prerequisiteItems.map((item, index) => (
@@ -435,6 +456,7 @@ export default function AddCourse() {
               <Button type="button" onClick={addPrerequisiteItem}>Add another prerequisite</Button>
             </div>
             
+            {/* Target Audience */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Target Audience</h2>
               {targetAudienceItems.map((item, index) => (
@@ -460,6 +482,7 @@ export default function AddCourse() {
               <Button type="button" onClick={addTargetAudienceItem}>Add another target audience</Button>
             </div>
             
+            {/* Submit Button */}
             <Button type="submit" disabled={isSaving}>
               {isSaving ? "Creating..." : "Create Course"}
             </Button>

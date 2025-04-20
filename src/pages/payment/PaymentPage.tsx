@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -32,9 +33,11 @@ export default function PaymentPage() {
   const [status, setStatus] = useState<PaymentStatus>(PaymentStatus.PENDING);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   
+  // Get payment details from location state
   const paymentDetails = location.state as PaymentState;
   
   useEffect(() => {
+    // Redirect if no payment details or user
     if (!paymentDetails?.courseId || !user) {
       toast({
         title: "Error",
@@ -53,6 +56,7 @@ export default function PaymentPage() {
     setPaymentError(null);
     
     try {
+      // Create a payment order
       const orderResponse = await paymentAPI.createOrder({
         amount: paymentDetails.amount,
         currency: paymentDetails.currency || 'USD',
@@ -60,9 +64,11 @@ export default function PaymentPage() {
       });
       
       if (orderResponse.data?.data?.order?.id) {
+        // Order created successfully, now capture the payment
         const orderId = orderResponse.data.data.order.id;
         
         try {
+          // Capture the payment
           await paymentAPI.capturePayment(orderId, {
             courseId: paymentDetails.courseId,
           });
@@ -74,6 +80,7 @@ export default function PaymentPage() {
             description: "You have been enrolled in the course",
           });
           
+          // Short delay before redirect
           setTimeout(() => {
             navigate(`/courses/${paymentDetails.courseKey}/learn`);
           }, 2000);
@@ -101,10 +108,12 @@ export default function PaymentPage() {
     }
   };
 
+  // Handle payment errors - allow retry or fallback to free enrollment
   const handleFallbackEnrollment = async () => {
     setIsProcessing(true);
     
     try {
+      // Try direct enrollment as fallback
       await enrollmentAPI.enrollCourse({ courseId: paymentDetails.courseId });
       
       toast({
@@ -112,6 +121,7 @@ export default function PaymentPage() {
         description: "You have been enrolled in the course",
       });
       
+      // Redirect to course learning page
       navigate(`/courses/${paymentDetails.courseKey}/learn`);
       
     } catch (error: any) {

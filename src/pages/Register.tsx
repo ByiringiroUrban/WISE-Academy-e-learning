@@ -56,16 +56,8 @@ export default function Register() {
     }
 
     try {
-      // Prepare user data object
-      const userData = {
-        name,
-        email,
-        password,
-        role: Number(role)
-      };
-      
-      // Call register with user data
-      await register(userData);
+      // Convert role string to number before passing to register
+      await register(name, email, password, Number(role));
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");

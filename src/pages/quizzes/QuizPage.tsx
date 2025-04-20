@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { quizAPI } from '@/lib/api';
@@ -41,6 +42,7 @@ export default function QuizPage() {
       setError('');
       
       try {
+        // Fetch the quiz data
         const response = await quizAPI.getQuizById(quizId);
         const quizData = response.data.data.quiz;
         
@@ -50,8 +52,11 @@ export default function QuizPage() {
         
         setQuiz(quizData);
         
+        // Extract questions from the quiz data
         if (quizData.questions && Array.isArray(quizData.questions)) {
           setQuizQuestions(quizData.questions);
+          
+          // Initialize userAnswers array with empty strings
           setUserAnswers(new Array(quizData.questions.length).fill(''));
         } else {
           throw new Error("No questions found in this quiz");
@@ -109,6 +114,7 @@ export default function QuizPage() {
   const handleSubmitQuiz = async () => {
     if (!quizId || !user) return;
     
+    // Check if all questions are answered
     const unansweredCount = userAnswers.filter(answer => !answer).length;
     if (unansweredCount > 0) {
       const isConfirmed = window.confirm(
@@ -123,15 +129,21 @@ export default function QuizPage() {
     setIsSubmitting(true);
     
     try {
+      // Calculate the score
       const scoreResult = calculateScore();
       setScore(scoreResult.percentage);
       
-      const submittedAnswers = userAnswers.map((answer, index) => ({
-        questionIndex: index,
-        answer
-      }));
+      // Submit the quiz
+      const answerData = {
+        quizId,
+        answers: userAnswers.map((answer, index) => ({
+          questionIndex: index,
+          answer
+        })),
+        score: scoreResult.percentage
+      };
       
-      await quizAPI.submitQuizAnswer(quiz._id, { answers: submittedAnswers });
+      await quizAPI.submitQuizAnswer(answerData);
       
       setQuizCompleted(true);
       
