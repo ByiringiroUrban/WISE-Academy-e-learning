@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,10 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface CourseReviewProps {
   courseId: string;
-  instructorId?: string;
   onReviewSubmitted?: () => void;
 }
 
-export default function CourseReview({ courseId, instructorId, onReviewSubmitted }: CourseReviewProps) {
+export default function CourseReview({ courseId, onReviewSubmitted }: CourseReviewProps) {
   const [rating, setRating] = useState<number>(5);
   const [review, setReview] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");

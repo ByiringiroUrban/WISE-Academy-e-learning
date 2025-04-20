@@ -1,7 +1,7 @@
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { formatDistance } from 'date-fns';
+import { format, formatDistance } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,6 +18,16 @@ export function formatTimeAgo(date: Date | string): string {
 
 export function formatDistanceToNow(date: Date | string): string {
   return formatDistance(new Date(date), new Date(), { addSuffix: true });
+}
+
+export function formatDate(date: Date | string, formatStr: string = 'MMM d, yyyy'): string {
+  if (!date) return 'N/A';
+  try {
+    return format(new Date(date), formatStr);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid date';
+  }
 }
 
 export function truncateText(text: string, maxLength: number): string {
