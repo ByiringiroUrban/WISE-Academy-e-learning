@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import StudentDashboard from "./student/StudentDashboard";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,8 +21,8 @@ export default function Dashboard() {
     }
   }, [user, navigate]);
 
-  // If no user or loading, show a placeholder
-  if (!user) {
+  // If loading, show a placeholder
+  if (isLoading || !user) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin mr-2" />
