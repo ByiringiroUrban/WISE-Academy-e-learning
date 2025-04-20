@@ -11,11 +11,15 @@ const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
 const Home = lazy(() => import("@/pages/Home"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const StudentDashboard = lazy(() => import("@/pages/student/StudentDashboard"));
+const StudentAssignments = lazy(() => import("@/pages/student/StudentAssignments"));
+const CourseLearningPage = lazy(() => import("@/pages/student/CourseLearningPage"));
 const InstructorDashboard = lazy(() => import("@/pages/instructor/InstructorDashboard"));
 const AddCourse = lazy(() => import("@/pages/instructor/AddCourse"));
 const EditCourse = lazy(() => import("@/pages/instructor/EditCourse"));
 const CourseContent = lazy(() => import("@/pages/instructor/CourseContent"));
 const CourseStudents = lazy(() => import("@/pages/instructor/CourseStudents"));
+const Homepage = lazy(() => import("@/pages/Homepage"));
 
 // Wrap components with Suspense for lazy loading
 const withSuspense = (Component: React.ComponentType<any>) => {
@@ -34,12 +38,25 @@ export const router = createBrowserRouter([
     path: "/",
     element: <AuthLayout />,
     children: [
-      { index: true, element: withSuspense(Home) },
+      { index: true, element: withSuspense(Homepage) },
       { path: "login", element: withSuspense(Login) },
       { path: "register", element: withSuspense(Register) },
+      { path: "home", element: withSuspense(Home) },
       {
         path: "dashboard",
         element: <RequireAuth><Suspense fallback={<Loader />}><Dashboard /></Suspense></RequireAuth>
+      },
+      {
+        path: "student/dashboard",
+        element: <RequireAuth><Suspense fallback={<Loader />}><StudentDashboard /></Suspense></RequireAuth>
+      },
+      {
+        path: "student/assignments",
+        element: <RequireAuth><Suspense fallback={<Loader />}><StudentAssignments /></Suspense></RequireAuth>
+      },
+      {
+        path: "courses/:courseKey/learn",
+        element: <RequireAuth><Suspense fallback={<Loader />}><CourseLearningPage /></Suspense></RequireAuth>
       },
       {
         path: "instructor",
@@ -66,7 +83,7 @@ export const router = createBrowserRouter([
           }
         ]
       },
-      // Redirect for the root path
+      // Redirect for the instructor root path
       {
         path: "instructor",
         element: <Navigate to="/instructor/dashboard" replace />
