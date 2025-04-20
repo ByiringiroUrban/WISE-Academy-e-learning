@@ -1,16 +1,21 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { userAPI, courseAPI, quizAPI } from '../lib/api';
+import { userAPI, courseAPI, quizAPI, enrollmentAPI, reviewAPI, announcementAPI } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: any | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
   updateUserProfile: (userData: any) => Promise<void>;
   verified: boolean;
+  checkAuthStatus: () => Promise<boolean>;
+  getAllCourses: () => Promise<any[]>;
+  getCourseByKey: (courseKey: string) => Promise<any>;
+  getQuizzes: () => Promise<any[]>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,26 +24,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
 
   // Check if user is logged in on initial load
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        const response = await userAPI.getCurrentUser();
-        setUser(response.data.data.user);
-        setVerified(true);
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    checkAuthStatus();
   }, []);
+
+  const checkAuthStatus = async (): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const response = await userAPI.getCurrentUser();
+      const userData = response.data.data.user;
+      setUser(userData);
+      setVerified(true);
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error('Authentication check failed:', error);
+      setUser(null);
+      setVerified(false);
+      setIsAuthenticated(false);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -52,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
       setUser(mockUser);
       setVerified(true);
+      setIsAuthenticated(true);
       toast({
         title: 'Success',
         description: 'You have successfully logged in',
@@ -81,6 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
       setUser(mockUser);
       setVerified(true);
+      setIsAuthenticated(true);
       toast({
         title: 'Success',
         description: 'Registration successful',
@@ -104,6 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Mock logout
       setUser(null);
       setVerified(false);
+      setIsAuthenticated(false);
       toast({
         title: 'Success',
         description: 'You have been logged out',
@@ -161,7 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getCourseByKey = async (courseKey: string) => {
     try {
-      const response = await courseAPI.getCourseByKey(courseKey);
+      const response = await courseAPI.getCourseDetails(courseKey);
       return response.data.data.course;
     } catch (error) {
       console.error(`Error fetching course ${courseKey}:`, error);
@@ -171,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getQuizzes = async () => {
     try {
-      const response = await quizAPI.getQuizzes({});
+      const response = await quizAPI.getCourseQuizzes("all");
       return response.data.data.quizzes;
     } catch (error) {
       console.error('Error fetching quizzes:', error);
@@ -182,11 +197,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const value = {
     user,
     isLoading,
+    isAuthenticated,
     login,
     register,
     logout,
     updateUserProfile,
     verified,
+    checkAuthStatus,
     getAllCourses,
     getCourseByKey,
     getQuizzes,

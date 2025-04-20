@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
@@ -8,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
   Loader2, 
-  BookOpen, 
   FileText, 
   MessageSquare, 
   Video, 
@@ -18,7 +16,6 @@ import {
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { enrollmentAPI } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 export default function CourseLearningPage() {

@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { BellIcon, BookOpen, Clock, MessageSquare, HelpCircle, FileText, CheckSquare } from "lucide-react";
+import { BellIcon, BookOpen, Clock, HelpCircle, FileText, CheckSquare } from "lucide-react";
 import { EnrolledCoursesList } from "@/components/student/EnrolledCoursesList";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { Button } from "@/components/ui/button";

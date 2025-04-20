@@ -26,9 +26,9 @@ export const courseAPI = {
   updateCourse: (courseId: string, data: any) => api.patch(`/courses/${courseId}`, data),
   deleteCourse: (courseId: string) => api.delete(`/courses/${courseId}`),
   publishCourse: (courseId: string) => api.patch(`/courses/${courseId}/publish`),
-  getAllCourses: (params?: any) => api.get('/courses/all', { params }),
   getCourseByKey: (courseKey: string) => api.get(`/courses/key/${courseKey}`),
   getInstructorCourses: () => api.get('/courses/instructor'),
+  getAllCourses: (params?: any) => api.get('/courses', { params }),
 };
 
 export const userAPI = {
@@ -37,7 +37,8 @@ export const userAPI = {
   getCurrentUser: () => api.get('/users/profile'),
   updateUser: (userId: string, data: any) => api.patch(`/users/${userId}`, data),
   deleteUser: (userId: string) => api.delete(`/users/${userId}`),
-  getAllUsers: (params?: any) => api.get('/users/all', { params }),
+  getAllUsers: (params?: any) => api.get('/users', { params }),
+  changeUserRole: (userId: string, roleId: number) => api.patch(`/users/${userId}/role`, { roleId }),
 };
 
 export const reviewAPI = {
@@ -46,6 +47,7 @@ export const reviewAPI = {
   updateReview: (reviewId: string, data: any) => api.patch(`/reviews/${reviewId}`, data),
   deleteReview: (reviewId: string) => api.delete(`/reviews/${reviewId}`),
   getReviews: (params?: any) => api.get('/reviews', { params }),
+  getEnrollments: (params?: any) => api.get('/enrollments', { params }),
 };
 
 export const announcementAPI = {
@@ -53,6 +55,7 @@ export const announcementAPI = {
   createAnnouncement: (data: any) => api.post('/announcements', data),
   updateAnnouncement: (announcementId: string, data: any) => api.patch(`/announcements/${announcementId}`, data),
   deleteAnnouncement: (announcementId: string) => api.delete(`/announcements/${announcementId}`),
+  getAnnouncements: (params?: any) => api.get('/announcements', { params }),
 };
 
 export const assignmentAPI = {
@@ -65,6 +68,7 @@ export const assignmentAPI = {
   getAssignments: (params?: any) => api.get('/assignments', { params }),
   getAssignmentSubmissions: (assignmentId: string) => api.get(`/assignments/${assignmentId}/submissions`),
   gradeSubmission: (submissionId: string, data: any) => api.post(`/assignments/submissions/${submissionId}/grade`, data),
+  deleteAssignment: (assignmentId: string) => api.delete(`/assignments/${assignmentId}`),
 };
 
 export const quizAPI = {
@@ -74,6 +78,14 @@ export const quizAPI = {
   getQuizzes: (params?: any) => api.get('/quizzes', { params }),
   createQuiz: (data: any) => api.post('/quizzes', data),
   updateQuiz: (quizId: string, data: any) => api.patch(`/quizzes/${quizId}`, data),
+  deleteQuiz: (quizId: string) => api.delete(`/quizzes/${quizId}`),
+  getQuizQuestions: (quizId: string) => api.get(`/quizzes/${quizId}/questions`),
+  createQuestion: (quizId: string, data: any) => api.post(`/quizzes/${quizId}/questions`, data),
+  updateQuestion: (quizId: string, questionId: string, data: any) => 
+    api.patch(`/quizzes/${quizId}/questions/${questionId}`, data),
+  deleteQuestion: (quizId: string, questionId: string) => 
+    api.delete(`/quizzes/${quizId}/questions/${questionId}`),
+  submitQuizAnswer: (quizId: string, data: any) => api.post(`/quizzes/${quizId}/answers`, data),
 };
 
 export const fileAPI = {
@@ -92,10 +104,11 @@ export const categoryAPI = {
   createCategory: (data: any) => api.post('/categories', data),
   updateCategory: (categoryId: string, data: any) => api.patch(`/categories/${categoryId}`, data),
   deleteCategory: (categoryId: string) => api.delete(`/categories/${categoryId}`),
+  getSubcategories: (categoryId: string) => api.get(`/categories/${categoryId}/subcategories`),
 };
 
 export const subcategoryAPI = {
-  getSubcategories: (categoryId?: string) => api.get('/subcategories', { params: { categoryId } }),
+  getSubcategories: (params?: { categoryId?: string }) => api.get('/subcategories', { params }),
   getSubcategoryById: (subcategoryId: string) => api.get(`/subcategories/${subcategoryId}`),
   createSubcategory: (data: any) => api.post('/subcategories', data),
   updateSubcategory: (subcategoryId: string, data: any) => api.patch(`/subcategories/${subcategoryId}`, data),
@@ -108,22 +121,29 @@ export const profileAPI = {
   changePassword: (data: any) => api.post('/profile/change-password', data),
 };
 
-export const authAPI = {
-  login: (data: any) => api.post('/auth/login', data),
-  register: (data: any) => api.post('/auth/register', data),
-  forgotPassword: (data: any) => api.post('/auth/forgot-password', data),
-  resetPassword: (data: any) => api.post('/auth/reset-password', data),
-  verifyEmail: (token: string) => api.get(`/auth/verify-email/${token}`),
-  logout: () => api.post('/auth/logout'),
-  refreshToken: () => api.post('/auth/refresh-token'),
-};
-
 export const chatAPI = {
   getChats: () => api.get('/chats'),
   getChatById: (chatId: string) => api.get(`/chats/${chatId}`),
   createChat: (data: any) => api.post('/chats', data),
   sendMessage: (chatId: string, data: any) => api.post(`/chats/${chatId}/messages`, data),
   getMessages: (chatId: string) => api.get(`/chats/${chatId}/messages`),
+  getConversations: () => api.get('/chats'),
+  createConversation: (data: any) => api.post('/chats', data),
+};
+
+export const paymentAPI = {
+  createPaymentIntent: (data: any) => api.post('/payments/create-intent', data),
+  confirmPayment: (data: any) => api.post('/payments/confirm', data),
+  getPaymentHistory: () => api.get('/payments/history'),
+  getPaymentDetails: (paymentId: string) => api.get(`/payments/${paymentId}`),
+};
+
+export const lectureAPI = {
+  createLecture: (data: any) => api.post('/lectures', data),
+  updateLecture: (lectureId: string, data: any) => api.patch(`/lectures/${lectureId}`, data),
+  deleteLecture: (lectureId: string) => api.delete(`/lectures/${lectureId}`),
+  getLectureById: (lectureId: string) => api.get(`/lectures/${lectureId}`),
+  getCourseLectures: (courseId: string) => api.get(`/lectures/course/${courseId}`),
 };
 
 export default api;

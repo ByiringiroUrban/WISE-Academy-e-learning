@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { categoryAPI, subcategoryAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { categoryAPI, subcategoryAPI } from "@/lib/api";
 import { Folder, FolderPlus, Pencil, Trash2 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
@@ -50,12 +46,11 @@ export default function CategoryManagement() {
   }, [verified]);
 
   const fetchCategories = async () => {
-    setIsLoading(true);
     try {
       const response = await categoryAPI.getCategories();
       setCategories(response.data.data.categories || []);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load categories");
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to load categories");
       toast({
         title: "Error",
         description: "Failed to load categories",
@@ -70,7 +65,7 @@ export default function CategoryManagement() {
     try {
       const response = await subcategoryAPI.getSubcategories({});
       setSubcategories(response.data.data.subCategories || []);
-    } catch (err: any) {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to load subcategories",
